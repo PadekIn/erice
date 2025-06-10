@@ -1,0 +1,10 @@
+services:
+  erice-fe:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: erice-fe
+    ports:
+      - '4444:4444'
+    environment:
+      NODE_ENV: production

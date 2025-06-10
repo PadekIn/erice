@@ -1,0 +1,53 @@
+# name: Deploy Prod
+
+# on:
+#   push:
+#     branches:
+#       - main
+
+# jobs:
+#   CD:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Check out repository
+#         uses: actions/checkout@v4
+
+#       - name: Setup SSH Key and Connect
+#         run: |
+#           mkdir -p ~/.ssh
+#           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+#           chmod 600 ~/.ssh/id_rsa
+#           eval "$(ssh-agent -s)"
+#           ssh-add ~/.ssh/id_rsa
+#           ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+#           ssh -T ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}
+
+#       - name: Deploy Code to VPS
+#         run: |
+#           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+#             cd /liz/${{ secrets.APP_NAME }}
+#             eval "$(ssh-agent -s)"
+#             ssh-add ~/.ssh/github_ssh
+#             GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=no' git pull origin main
+#           EOF
+
+#       - name: Transfer .env file to VPS
+#         run: |
+#           echo "${{ secrets.ENV_FILE }}" | base64 --decode > .env
+#           scp -o StrictHostKeyChecking=no .env ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/liz/${{ secrets.APP_NAME }}/.env
+
+#       - name: Deploy App
+#         run: |
+#           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+#             cd /liz/${{ secrets.APP_NAME }}
+#             docker compose up -d --build
+#           EOF
+
+#       - name: Cleanup Docker
+#         run: |
+#           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+#             docker container prune -f
+#             docker image prune -a
+#             docker builder prune -f
+#           EOF
