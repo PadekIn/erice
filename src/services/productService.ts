@@ -1,136 +1,119 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { API_CONFIG } from '@/config/api';
+
+const handleResponse = async (response: Response) => {
+  const data = await response.json();
+  if (!response.ok) {
+    const errorMessage = data.errors && data.errors.length > 0
+      ? data.errors.map((err: any) => err.message || err).join(', ')
+      : data.message || `HTTP error! status: ${response.status}`;
+
+    const error = new Error(errorMessage);
+    (error as any).response = { data };
+    (error as any).errors = data.errors;
+    throw error;
+  }
+  return data;
+};
 
 export interface Product {
   id: string;
   name: string;
-  description: string;
-  unit: string;
-  weight: number;
   price: number;
   stock: number;
+  weight: number;
+  unit: string;
   image: string;
+  description?: string;
   CategoryProduct: {
     id: string;
     name: string;
   };
 }
 
-export interface ProductsResponse {
-  status: boolean;
-  message: string;
-  data: Product[];
-}
-
-export interface ProductResponse {
-  status: boolean;
-  message: string;
-  data: Product;
-}
-
-export interface ProductActionResponse {
-  status: boolean;
-  message: string;
-  data: Product | null;
-}
-
 export interface ProductFilters {
+  search?: string;
+  category?: string;
   minPrice?: number;
   maxPrice?: number;
-  categoryProductId?: string;
+  sortBy?: string;
+  page?: number;
+  limit?: number;
 }
 
-export class ProductService {
-  private static baseURL = `${API_CONFIG.baseURL}${API_CONFIG.endpoints.products}`;
+export const ProductService = {
+  getProducts: async (filters?: ProductFilters) => {
+    let url = `${API_CONFIG.baseURL}${API_CONFIG.endpoints.products}`;
 
-  private static getAuthHeaders() {
+    if (filters) {
+      const params = new URLSearchParams();
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          params.append(key, value.toString());
+        }
+      });
+      if (params.toString()) {
+        url += `?${params.toString()}`;
+      }
+    }
+
+    const response = await fetch(url);
+    return handleResponse(response);
+  },
+
+  getProduct: async (id: string) => {
+    const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.products}/${id}`);
+    return handleResponse(response);
+  },
+
+  getProductById: async (id: string) => {
+    const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.products}/${id}`);
+    return handleResponse(response);
+  },
+
+  getCategories: async () => {
+    const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.categories}`);
+    return handleResponse(response);
+  },
+
+  getProductsCount: async () => {
+    const response = await fetch(`${API_CONFIG.baseURL}/products/count`);
+    return handleResponse(response);
+  },
+
+  createProduct: async (formData: FormData) => {
     const token = localStorage.getItem('auth_token');
-    return {
-      ...(token && { 'Authorization': `Bearer ${token}` })
-    };
-  }
-
-  static async getProducts(filters?: ProductFilters): Promise<ProductsResponse> {
-    const params = new URLSearchParams();
-    if (filters?.minPrice) params.append('minPrice', filters.minPrice.toString());
-    if (filters?.maxPrice) params.append('maxPrice', filters.maxPrice.toString());
-    if (filters?.categoryProductId) params.append('categoryProductId', filters.categoryProductId);
-
-    const url = `${this.baseURL}${params.toString() ? `?${params.toString()}` : ''}`;
-    
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: this.getAuthHeaders(),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message || `HTTP error! status: ${response.status}`);
-    }
-
-    return data;
-  }
-
-  static async getProduct(id: string): Promise<ProductResponse> {
-    const response = await fetch(`${this.baseURL}/${id}`, {
-      method: 'GET',
-      headers: this.getAuthHeaders(),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message || `HTTP error! status: ${response.status}`);
-    }
-
-    return data;
-  }
-
-  static async createProduct(formData: FormData): Promise<ProductActionResponse> {
-    const response = await fetch(this.baseURL, {
+    const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.products}`, {
       method: 'POST',
-      headers: this.getAuthHeaders(),
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
       body: formData,
     });
+    return handleResponse(response);
+  },
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message || `HTTP error! status: ${response.status}`);
-    }
-
-    return data;
-  }
-
-  static async updateProduct(id: string, formData: FormData): Promise<ProductActionResponse> {
-    const response = await fetch(`${this.baseURL}/${id}`, {
-      method: 'PATCH',
-      headers: this.getAuthHeaders(),
+  updateProduct: async (id: string, formData: FormData) => {
+    const token = localStorage.getItem('auth_token');
+    const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.products}/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
       body: formData,
     });
+    return handleResponse(response);
+  },
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message || `HTTP error! status: ${response.status}`);
-    }
-
-    return data;
-  }
-
-  static async deleteProduct(id: string): Promise<ProductActionResponse> {
-    const response = await fetch(`${this.baseURL}/${id}`, {
+  deleteProduct: async (id: string) => {
+    const token = localStorage.getItem('auth_token');
+    const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.products}/${id}`, {
       method: 'DELETE',
-      headers: this.getAuthHeaders(),
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
     });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message || `HTTP error! status: ${response.status}`);
-    }
-
-    return data;
-  }
-}
+    return handleResponse(response);
+  },
+};

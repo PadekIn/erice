@@ -17,11 +17,11 @@ const OrderFilters = ({
   setStatusFilter 
 }: OrderFiltersProps) => {
   const statusOptions = [
-    { value: 'all', label: 'All Status' },
-    { value: 'pending', label: 'Pending' },
-    { value: 'processing', label: 'Processing' },
-    { value: 'completed', label: 'Completed' },
-    { value: 'canceled', label: 'Canceled' },
+    { value: '', label: 'All Status' },
+    { value: 'Pending', label: 'Pending' },
+    { value: 'Processing', label: 'Processing' },
+    { value: 'Completed', label: 'Completed' },
+    { value: 'Canceled', label: 'Canceled' },
   ];
 
   return (

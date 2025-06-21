@@ -7,11 +7,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useUpdateProduct } from '@/hooks/useProducts';
 import { Product } from '@/services/productService';
+import { Category } from '@/services/categoryService';
 
 interface ProductEditFormProps {
   product: Product;
   onClose: () => void;
-  categories: Array<{ id: string; name: string }>;
+  categories: Category[];
 }
 
 const ProductEditForm = ({ product, onClose, categories }: ProductEditFormProps) => {

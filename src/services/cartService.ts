@@ -1,123 +1,99 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { API_CONFIG } from '@/config/api';
 
+const handleResponse = async (response: Response) => {
+  const data = await response.json();
+  if (!response.ok) {
+    const errorMessage = data.errors && data.errors.length > 0
+      ? data.errors.map((err: any) => err.message || err).join(', ')
+      : data.message || `HTTP error! status: ${response.status}`;
+
+    const error = new Error(errorMessage);
+    (error as any).response = { data };
+    (error as any).errors = data.errors;
+    throw error;
+  }
+  return data;
+};
+
 export interface CartItem {
   id: string;
+  qty: number;
   Product: {
     id: string;
     name: string;
     price: number;
     image: string;
   };
-  qty: number;
 }
 
-export interface CartResponse {
-  status: boolean;
-  message: string;
-  data: CartItem[];
-}
-
-export interface CartItemResponse {
-  status: boolean;
-  message: string;
-  data: {
-    id: string;
-    productId: string;
-    qty: number;
-  };
-}
-
-export interface CartActionResponse {
-  status: boolean;
-  message: string;
-  data: null;
-}
-
-export class CartService {
-  private static baseURL = `${API_CONFIG.baseURL}${API_CONFIG.endpoints.carts}`;
-
-  private static getAuthHeaders() {
+export const CartService = {
+  getCart: async () => {
     const token = localStorage.getItem('auth_token');
-    return {
-      ...(token && { 'Authorization': `Bearer ${token}` })
-    };
-  }
-
-  static async getCart(): Promise<CartResponse> {
-    const response = await fetch(this.baseURL, {
-      method: 'GET',
-      headers: this.getAuthHeaders(),
+    const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.carts}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
     });
+    return handleResponse(response);
+  },
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message || `HTTP error! status: ${response.status}`);
-    }
-
-    return data;
-  }
-
-  static async addToCart(productId: string, qty: number): Promise<CartItemResponse> {
-    console.log({ productId, qty });
-    const response = await fetch(`${this.baseURL}/add`, {
+  addToCart: async (productId: string, qty: number) => {
+    const token = localStorage.getItem('auth_token');
+    const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.carts}`, {
       method: 'POST',
-      headers: this.getAuthHeaders(),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
       body: JSON.stringify({ productId, qty }),
     });
+    return handleResponse(response);
+  },
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.errors[0].message || data.message || `HTTP error! status: ${response.status}`);
-    }
-
-    return data;
-  }
-
-  static async incrementItem(id: string): Promise<CartActionResponse> {
-    const response = await fetch(`${this.baseURL}/item/inc/${id}`, {
-      method: 'PATCH',
-      headers: this.getAuthHeaders(),
+  incrementItem: async (id: string) => {
+    const token = localStorage.getItem('auth_token');
+    const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.carts}/increment/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
     });
+    return handleResponse(response);
+  },
 
-    const data = await response.json();
+  incrementCartItem: async (id: string) => {
+    return CartService.incrementItem(id);
+  },
 
-    if (!response.ok) {
-      throw new Error(data.errors[0].message || data.message || `HTTP error! status: ${response.status}`);
-    }
-
-    return data;
-  }
-
-  static async decrementItem(id: string): Promise<CartActionResponse> {
-    const response = await fetch(`${this.baseURL}/item/dec/${id}`, {
-      method: 'PATCH',
-      headers: this.getAuthHeaders(),
+  decrementItem: async (id: string) => {
+    const token = localStorage.getItem('auth_token');
+    const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.carts}/decrement/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
     });
+    return handleResponse(response);
+  },
 
-    const data = await response.json();
+  decrementCartItem: async (id: string) => {
+    return CartService.decrementItem(id);
+  },
 
-    if (!response.ok) {
-      throw new Error(data.errors[0].message || data.message || `HTTP error! status: ${response.status}`);
-    }
-
-    return data;
-  }
-
-  static async removeItem(id: string): Promise<CartActionResponse> {
-    const response = await fetch(`${this.baseURL}/item/remove/${id}`, {
+  removeItem: async (id: string) => {
+    const token = localStorage.getItem('auth_token');
+    const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.carts}/${id}`, {
       method: 'DELETE',
-      headers: this.getAuthHeaders(),
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
     });
+    return handleResponse(response);
+  },
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.errors[0].message || data.message || `HTTP error! status: ${response.status}`);
-    }
-
-    return data;
-  }
-}
+  removeCartItem: async (id: string) => {
+    return CartService.removeItem(id);
+  },
+};

@@ -1,12 +1,12 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogTrigger 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
 } from '@/components/ui/dialog';
 import { Plus } from 'lucide-react';
 import { useBlogs, useDeleteBlog } from '@/hooks/useBlogs';
@@ -27,10 +27,10 @@ const AdminBlog = () => {
   const blogs = blogsData?.data || [];
 
   const filteredPosts = blogs.filter(blog => {
-    const matchesSearch = 
+    const matchesSearch =
       blog.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       blog.metaDesc.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || 
+    const matchesStatus = statusFilter === 'all' ||
       (statusFilter === 'published' && blog.isPublished) ||
       (statusFilter === 'draft' && !blog.isPublished);
     return matchesSearch && matchesStatus;
@@ -42,9 +42,7 @@ const AdminBlog = () => {
   };
 
   const handleDelete = (postId: string) => {
-    if (confirm('Are you sure you want to delete this blog post?')) {
-      deletePostMutation.mutate(postId);
-    }
+    deletePostMutation.mutate(postId);
   };
 
   const handleDialogClose = () => {

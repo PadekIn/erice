@@ -14,6 +14,7 @@ import ProductEditForm from '@/components/admin/ProductEditForm';
 import ProductFilters from '@/components/admin/ProductFilters';
 import ProductTable from '@/components/admin/ProductTable';
 import { useProducts, useDeleteProduct } from '@/hooks/useProducts';
+import { useCategories } from '@/hooks/useCategories';
 import { Product } from '@/services/productService';
 
 const AdminProducts = () => {
@@ -24,15 +25,10 @@ const AdminProducts = () => {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
   const { data: productsData, isLoading } = useProducts();
+  const { data: categoriesData, isLoading: categoriesLoading } = useCategories();
   const deleteProductMutation = useDeleteProduct();
 
-  // Mock categories - replace with actual API call
-  const categories = [
-    { id: '1', name: 'Premium' },
-    { id: '2', name: 'Medium' },
-    { id: '3', name: 'Organic' },
-  ];
-
+  const categories = categoriesData?.data || [];
   const products = productsData?.data || [];
 
   const filteredProducts = products.filter(product => {
@@ -61,8 +57,8 @@ const AdminProducts = () => {
     setEditingProduct(null);
   };
 
-  if (isLoading) {
-    return <div className="p-6">Loading products...</div>;
+  if (isLoading || categoriesLoading) {
+    return <div className="p-6">Loading products and categories...</div>;
   }
 
   return (

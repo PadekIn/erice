@@ -6,10 +6,11 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useCreateProduct } from '@/hooks/useProducts';
+import { Category } from '@/services/categoryService';
 
 interface ProductCreateFormProps {
   onClose: () => void;
-  categories: Array<{ id: string; name: string }>;
+  categories: Category[];
 }
 
 const ProductCreateForm = ({ onClose, categories }: ProductCreateFormProps) => {

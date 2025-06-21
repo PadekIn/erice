@@ -104,8 +104,8 @@ const ProductDetail = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <Button 
-        variant="outline" 
+      <Button
+        variant="outline"
         onClick={() => navigate('/products')}
         className="mb-6"
       >
@@ -115,9 +115,9 @@ const ProductDetail = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="space-y-4">
-          <div 
+          <div
             className="w-full h-full bg-cover bg-center rounded-lg"
-            style={{ 
+            style={{
               backgroundImage: `url(${product.image})`,
               backgroundSize: 'cover',
               backgroundPosition: 'center'
@@ -140,15 +140,18 @@ const ProductDetail = () => {
             <div className="flex items-center space-x-2 mb-4">
               <div className="flex items-center space-x-1">
                 <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-                <span className="font-medium">4.8</span>
+                <span className="font-medium">{product.rating.average}</span>
               </div>
-              <span className="text-muted-foreground">({product.stock} tersedia)</span>
+              <span className="text-muted-foreground">({product.rating.count} ulasan)</span>
             </div>
             <p className="text-xl font-bold text-forest-600 mb-4">
               {formatPrice(product.price)}
             </p>
             <p className="text-muted-foreground mb-4">
-              {product.weight} kg / {product.unit}
+              Stock: {product.stock}
+            </p>
+            <p className="text-muted-foreground mb-4">
+              Weight: {product.weight} {product.unit}
             </p>
           </div>
 
@@ -164,7 +167,7 @@ const ProductDetail = () => {
           </Card>
 
           <div className="flex space-x-4">
-            <Button 
+            <Button
               variant="outline"
               className="flex-1"
               onClick={handleAddToCart}
@@ -172,7 +175,7 @@ const ProductDetail = () => {
             >
               <ShoppingCart className="h-5 w-5" />
             </Button>
-            <Button 
+            <Button
               className="flex-[2] bg-forest-600 hover:bg-forest-700 text-white py-3 text-lg"
               onClick={handleOrderNow}
               disabled={product.stock === 0}

@@ -13,8 +13,7 @@ const Footer = () => {
               <img src="/img/head.png" alt="logo" />
             </div>
             <p className="text-forest-200 text-lg">
-              Bringing you the finest quality rice from the fertile lands of Indragiri Hilir,
-              supporting local farmers and sustainable agriculture.
+              Memberikan Anda beras kualitas terbaik dari tanah subur Indragiri Hilir, mendukung petani lokal dan pertanian berkelanjutan.
             </p>
             <div className="flex items-center space-x-2 text-sm text-forest-200">
               <MapPin className="h-4 w-4" />
@@ -25,7 +24,7 @@ const Footer = () => {
           <div className='grid grid-cols-1 md:grid-cols-3 gap-16'>
             {/* Quick Links */}
             <div className="space-y-4">
-              <h4 className="text-lg font-semibold">Quick Links</h4>
+              <h4 className="text-lg font-semibold">Tautan Cepat</h4>
               <ul className="space-y-2">
                 <li><Link to="/" className="text-forest-200 hover:text-white transition-colors">Home</Link></li>
                 <li><Link to="/products" className="text-forest-200 hover:text-white transition-colors">Products</Link></li>
@@ -38,24 +37,22 @@ const Footer = () => {
 
             {/* Customer Service */}
             <div className="space-y-4">
-              <h4 className="text-lg font-semibold">Customer Service</h4>
+              <h4 className="text-lg font-semibold">Service</h4>
               <ul className="space-y-2">
-                <li><Link to="/cart" className="text-forest-200 hover:text-white transition-colors">Shopping Cart</Link></li>
-                <li><Link to="/orders" className="text-forest-200 hover:text-white transition-colors">Order History</Link></li>
-                <li><Link to="/login" className="text-forest-200 hover:text-white transition-colors">Account</Link></li>
-                <li><a href="#" className="text-forest-200 hover:text-white transition-colors">Shipping Info</a></li>
-                <li><a href="#" className="text-forest-200 hover:text-white transition-colors">Returns</a></li>
+                <li><Link to="/cart" className="text-forest-200 hover:text-white transition-colors">Keranjang Belanja</Link></li>
+                <li><Link to="/orders" className="text-forest-200 hover:text-white transition-colors">Riwayat Pesanan</Link></li>
+                <li><Link to="/login" className="text-forest-200 hover:text-white transition-colors">Akun</Link></li>
               </ul>
             </div>
 
             {/* About */}
             <div className="space-y-4">
-              <h4 className="text-lg font-semibold">Our Mission</h4>
+              <h4 className="text-lg font-semibold">Misi Kami</h4>
               <ul className="space-y-2">
-                <li><a href="#" className="text-forest-200 hover:text-white transition-colors">Sustainability</a></li>
-                <li><a href="#" className="text-forest-200 hover:text-white transition-colors">Local Farmers</a></li>
-                <li><a href="#" className="text-forest-200 hover:text-white transition-colors">Quality Promise</a></li>
-                <li><a href="#" className="text-forest-200 hover:text-white transition-colors">Community Impact</a></li>
+                <li><a href="#" className="text-forest-200 hover:text-white transition-colors">Terjangkau</a></li>
+                <li><a href="#" className="text-forest-200 hover:text-white transition-colors">Premium</a></li>
+                <li><a href="#" className="text-forest-200 hover:text-white transition-colors">Pemberdayaan</a></li>
+                <li><a href="#" className="text-forest-200 hover:text-white transition-colors">Ketahanan</a></li>
               </ul>
             </div>
           </div>

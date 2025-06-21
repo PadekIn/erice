@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { CartService } from '@/services/cartService';
@@ -100,11 +101,11 @@ export const useRemoveCartItem = () => {
   return useMutation({
     mutationFn: (id: string) => CartService.removeItem(id),
     onSuccess: () => {
-      toast({
-        title: "Produk Dihapus",
-        description: "Produk berhasil dihapus dari keranjang",
-        className: "bg-green-50 border-green-200 text-green-800",
-      });
+      // toast({
+      //   title: "Produk Dihapus",
+      //   description: "Produk berhasil dihapus dari keranjang",
+      //   className: "bg-green-50 border-green-200 text-green-800",
+      // });
       queryClient.invalidateQueries({ queryKey: ['cart'] });
     },
     onError: (error: any) => {

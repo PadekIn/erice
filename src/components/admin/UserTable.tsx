@@ -1,36 +1,34 @@
 
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Shield, User } from 'lucide-react';
 import UserActions from './UserActions';
 
 interface User {
-  id: number;
+  id: string;
   name: string;
   email: string;
   role: string;
+  gender?: string;
   joinDate: string;
   lastLogin: string;
-  totalOrders: number;
-  totalSpent: number;
 }
 
 interface UserTableProps {
   users: User[];
-  onRoleChange: (userId: number, newRole: string) => void;
-  onDeleteUser: (userId: number) => void;
+  onRoleChange: (userId: string, newRole: string) => void;
 }
 
-const UserTable = ({ users, onRoleChange, onDeleteUser }: UserTableProps) => {
+const UserTable = ({ users, onRoleChange }: UserTableProps) => {
   const getRoleBadge = (role: string) => {
-    return role === 'admin' 
+    return role === 'Admin'
       ? <Badge className="bg-forest-600"><Shield className="h-3 w-3 mr-1" />Admin</Badge>
       : <Badge variant="secondary"><User className="h-3 w-3 mr-1" />User</Badge>;
   };
@@ -39,11 +37,11 @@ const UserTable = ({ users, onRoleChange, onDeleteUser }: UserTableProps) => {
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>User</TableHead>
+          <TableHead>Fullname</TableHead>
+          <TableHead>Email</TableHead>
+          <TableHead>Gender</TableHead>
           <TableHead>Role</TableHead>
           <TableHead>Join Date</TableHead>
-          <TableHead>Orders</TableHead>
-          <TableHead>Total Spent</TableHead>
           <TableHead>Actions</TableHead>
         </TableRow>
       </TableHeader>
@@ -51,21 +49,17 @@ const UserTable = ({ users, onRoleChange, onDeleteUser }: UserTableProps) => {
         {users.map((user) => (
           <TableRow key={user.id}>
             <TableCell>
-              <div>
-                <p className="font-medium">{user.name}</p>
-                <p className="text-sm text-gray-500">{user.email}</p>
-              </div>
+              <p className="font-medium">{user.name}</p>
             </TableCell>
+            <TableCell>{user.email}</TableCell>
+            <TableCell>{user.gender}</TableCell>
             <TableCell>{getRoleBadge(user.role)}</TableCell>
             <TableCell>{user.joinDate}</TableCell>
-            <TableCell>{user.totalOrders}</TableCell>
-            <TableCell>Rp {user.totalSpent.toLocaleString()}</TableCell>
             <TableCell>
               <UserActions
                 userId={user.id}
                 userRole={user.role}
                 onRoleChange={onRoleChange}
-                onDeleteUser={onDeleteUser}
               />
             </TableCell>
           </TableRow>

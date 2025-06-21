@@ -13,8 +13,8 @@ interface UserFiltersProps {
 const UserFilters = ({ searchTerm, setSearchTerm, roleFilter, setRoleFilter }: UserFiltersProps) => {
   const roleOptions = [
     { value: 'all', label: 'All Roles' },
-    { value: 'admin', label: 'Admin' },
-    { value: 'user', label: 'User' }
+    { value: 'Admin', label: 'Admin' },
+    { value: 'User', label: 'User' }
   ];
 
   return (
@@ -33,7 +33,7 @@ const UserFilters = ({ searchTerm, setSearchTerm, roleFilter, setRoleFilter }: U
             </div>
           </div>
           <div className="w-full md:w-48">
-            <select 
+            <select
               className="w-full p-2 border rounded-md"
               value={roleFilter}
               onChange={(e) => setRoleFilter(e.target.value)}

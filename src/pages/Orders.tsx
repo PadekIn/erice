@@ -1,4 +1,3 @@
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useState } from 'react';
@@ -7,20 +6,37 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Package, Calendar, CreditCard, Truck, CheckCircle } from 'lucide-react';
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { Package, Calendar, CreditCard, Truck, CheckCircle, Clock, RotateCcw, X, Eye } from 'lucide-react';
 import { useOrders } from '@/hooks/useApi';
 import OrderDetailModal from '@/components/order/OrderDetailModal';
 import SnapPaymentModal from '@/components/order/SnapPaymentModal';
+import ReviewModal from '@/components/order/ReviewModal';
+import { useToast } from '@/hooks/use-toast';
 
 const Orders = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('Pending');
   const [selectedOrderId, setSelectedOrderId] = useState<string>('');
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isSnapModalOpen, setIsSnapModalOpen] = useState(false);
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [snapUrl, setSnapUrl] = useState<string>('');
+  const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const [reviewMode, setReviewMode] = useState<'create' | 'view'>('create');
 
-  const { data: ordersResponse, isLoading, error } = useOrders(activeTab === 'all' ? undefined : activeTab);
+  const { data: ordersResponse, isLoading, error, refetch } = useOrders(activeTab === 'all' ? undefined : activeTab);
   const orders = ordersResponse?.data || [];
 
   // Check if user is authenticated
@@ -37,9 +53,14 @@ const Orders = () => {
         className: 'bg-yellow-100 text-yellow-800',
         icon: CreditCard
       },
-      Shipped: {
+      Processing: {
         label: 'Dalam Proses',
         className: 'bg-blue-100 text-blue-800',
+        icon: Clock
+      },
+      Shipped: {
+        label: 'Dalam Pengiriman',
+        className: 'bg-purple-100 text-purple-800',
         icon: Truck
       },
       Completed: {
@@ -75,17 +96,117 @@ const Orders = () => {
 
   const handlePaymentSuccess = () => {
     setIsSnapModalOpen(false);
-    navigate(`/orders`);
+    refetch();
   };
 
   const handlePaymentClick = (snapUrl: string) => {
     setSnapUrl(snapUrl);
     setIsSnapModalOpen(true);
-  }
+  };
 
   const handleOrderClick = (orderId: string) => {
     setSelectedOrderId(orderId);
     setIsDetailModalOpen(true);
+  };
+
+  const handleCancelOrder = async (orderId: string) => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}/orders/${orderId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+        }
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast({
+          title: "Pesanan Dibatalkan",
+          description: "Pesanan telah berhasil dibatalkan",
+          className: "bg-green-50 border-green-200 text-green-800",
+        });
+        refetch();
+      } else {
+        throw new Error(data.message);
+      }
+    } catch (error: any) {
+      toast({
+        title: "Gagal Membatalkan Pesanan",
+        description: error.message || "Terjadi kesalahan saat membatalkan pesanan",
+        className: "bg-red-50 border-red-200 text-red-800",
+      });
+    }
+  };
+
+  const handleAcceptOrder = async (orderId: string) => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}/orders/${orderId}/accept`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+        }
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast({
+          title: "Pesanan Diterima",
+          description: "Pesanan telah berhasil diselesaikan",
+          className: "bg-green-50 border-green-200 text-green-800",
+        });
+        setActiveTab("Completed");
+        refetch();
+      } else {
+        throw new Error(data.message);
+      }
+    } catch (error: any) {
+      toast({
+        title: "Gagal Menerima Pesanan",
+        description: error.message || "Terjadi kesalahan saat menerima pesanan",
+        className: "bg-red-50 border-red-200 text-red-800",
+      });
+    }
+  };
+
+  const handleReviewClick = (order: any) => {
+    setSelectedOrder(order);
+    // Check if order has rating to determine mode
+    const hasRating = order.items && order.items.some((item: any) => item.rating !== null);
+    setReviewMode(hasRating ? 'view' : 'create');
+    setIsReviewModalOpen(true);
+  };
+
+  const handleBuyAgain = (order: any) => {
+    try {
+      // Create order items from the order
+      const orderItems = order.items.map((item: any) => ({
+        productId: item.Product?.id || item.productId,
+        name: item.Product?.name || item.name,
+        price: item.Product?.price || item.price,
+        qty: item.qty,
+        image: item.Product?.image || item.image
+      }));
+
+      // Store in session storage
+      sessionStorage.setItem('directOrderItems', JSON.stringify(orderItems));
+
+      // Navigate to order page
+      navigate('/order');
+    } catch (error) {
+      console.error('Error processing buy again:', error);
+      toast({
+        title: "Gagal Memproses Pesanan",
+        description: "Terjadi kesalahan saat memproses pesanan ulang",
+        className: "bg-red-50 border-red-200 text-red-800",
+      });
+    }
+  };
+
+  // Helper function to check if order has been reviewed
+  const hasBeenReviewed = (order: any) => {
+    return order.items && order.items.some((item: any) => item.rating !== null);
   };
 
   if (isLoading) {
@@ -151,14 +272,18 @@ const Orders = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="Pending" className="flex items-center gap-2">
             <CreditCard className="h-4 w-4" />
             Menunggu Pembayaran
           </TabsTrigger>
+          <TabsTrigger value="Processing" className="flex items-center gap-2">
+            <Clock className="h-4 w-4" />
+            Dalam Proses
+          </TabsTrigger>
           <TabsTrigger value="Shipped" className="flex items-center gap-2">
             <Truck className="h-4 w-4" />
-            Dalam Proses
+            Dalam Pengiriman
           </TabsTrigger>
           <TabsTrigger value="Completed" className="flex items-center gap-2">
             <CheckCircle className="h-4 w-4" />
@@ -170,7 +295,7 @@ const Orders = () => {
           </TabsTrigger>
         </TabsList>
 
-        {['Pending', 'Shipped', 'Completed', 'Cancelled'].map((status) => (
+        {['Pending', 'Processing', 'Shipped', 'Completed', 'Cancelled'].map((status) => (
           <TabsContent key={status} value={status} className="mt-6">
             <div className="space-y-6">
               {orders.length === 0 ? (
@@ -178,9 +303,10 @@ const Orders = () => {
                   <Package className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
                   <p className="text-muted-foreground">
                     {status === 'Pending' ? 'Tidak ada pesanan yang menunggu pembayaran' :
-                      status === 'Shipped' ? 'Tidak ada pesanan dalam proses' :
-                        status === 'Completed' ? 'Tidak ada pesanan yang selesai' :
-                          'Tidak ada pesanan yang dibatalkan'}
+                      status === 'Processing' ? 'Tidak ada pesanan dalam proses' :
+                        status === 'Shipped' ? 'Tidak ada pesanan dalam pengiriman' :
+                          status === 'Completed' ? 'Tidak ada pesanan yang selesai' :
+                            'Tidak ada pesanan yang dibatalkan'}
                   </p>
                 </div>
               ) : (
@@ -209,16 +335,70 @@ const Orders = () => {
                         </div>
                         <div className="flex space-x-2">
                           {order.status === 'Pending' && (
-                            <Button size="sm" className="bg-forest-600 hover:bg-forest-700" onClick={(e) => {
+                            <>
+                              <Button size="sm" className="bg-forest-600 hover:bg-forest-700" onClick={(e) => {
+                                e.stopPropagation();
+                                handlePaymentClick(order.paymentUrl);
+                              }}>
+                                Bayar Sekarang
+                              </Button>
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button variant="destructive" size="sm" onClick={(e) => e.stopPropagation()}>
+                                    <X className="h-4 w-4 mr-1" />
+                                    Batalkan
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Batalkan Pesanan</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Apakah Anda yakin ingin membatalkan pesanan dengan #{order.orderNumber}?
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Batal</AlertDialogCancel>
+                                    <AlertDialogAction 
+                                      onClick={() => handleCancelOrder(order.id)}
+                                      className="bg-red-600 hover:bg-red-700"
+                                    >
+                                      Ya, Batalkan
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </>
+                          )}
+                          {order.status === 'Shipped' && (
+                            <Button size="sm" className="bg-green-600 hover:bg-green-700" onClick={(e) => {
                               e.stopPropagation();
-                              handlePaymentClick(order.paymentUrl);
+                              handleAcceptOrder(order.id);
                             }}>
-                              Bayar Sekarang
+                              Terima Pesanan
                             </Button>
                           )}
-                          {order.status === 'Completed' && (
-                            <Button variant="outline" size="sm">
+                          {(order.status === 'Completed' || order.status === 'Cancelled') && (
+                            <Button variant="outline" size="sm" onClick={(e) => {
+                              e.stopPropagation();
+                              handleBuyAgain(order);
+                            }}>
+                              <RotateCcw className="h-4 w-4 mr-1" />
                               Beli Lagi
+                            </Button>
+                          )}
+                          {order.status === 'Completed' && order.paymentStatus === 'Completed' && (
+                            <Button size="sm" className="bg-orange-600 hover:bg-orange-700" onClick={(e) => {
+                              e.stopPropagation();
+                              handleReviewClick(order);
+                            }}>
+                              {hasBeenReviewed(order) ? (
+                                <>
+                                  <Eye className="h-4 w-4 mr-1" />
+                                  Lihat Ulasan
+                                </>
+                              ) : (
+                                'Beri Ulasan'
+                              )}
                             </Button>
                           )}
                           <Button variant="outline" size="sm" onClick={(e) => {
@@ -242,11 +422,19 @@ const Orders = () => {
         onClose={() => setIsSnapModalOpen(false)}
         snapUrl={snapUrl}
         onSuccess={handlePaymentSuccess}
+        onCancel={handleCancelOrder}
+        orderId={selectedOrderId}
       />
       <OrderDetailModal
         isOpen={isDetailModalOpen}
         onClose={() => setIsDetailModalOpen(false)}
         orderId={selectedOrderId}
+      />
+      <ReviewModal
+        isOpen={isReviewModalOpen}
+        onClose={() => setIsReviewModalOpen(false)}
+        order={selectedOrder}
+        mode={reviewMode}
       />
     </div>
   );

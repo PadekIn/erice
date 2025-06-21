@@ -79,7 +79,7 @@ const Products = () => {
       });
       return;
     }
-    
+
     setSelectedProduct(product);
     setIsOrderModalOpen(true);
   };
@@ -161,9 +161,9 @@ const Products = () => {
           <Card key={product.id} className="h-full overflow-hidden hover:shadow-lg transition-all duration-300 group" style={{ animationDelay: `${index * 0.1}s` }}>
             <div className="relative overflow-hidden">
               <Link to={`/products/${product.id}`}>
-                <div 
+                <div
                   className="h-80 bg-cover bg-center transition-transform duration-300 group-hover:scale-110 cursor-pointer"
-                  style={{ 
+                  style={{
                     backgroundImage: `url(${product.image})`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center'
@@ -182,20 +182,23 @@ const Products = () => {
             </div>
             <CardHeader className="space-y-2">
               <Link to={`/products/${product.id}`}>
-                <h3 className="text-lg font-semibold text-forest-800 group-hover:text-forest-600 transition-colors cursor-pointer">
-                  {product.name}
-                </h3>
+                <div className='flex justify-between items-end'>
+                  <h3 className="text-lg font-semibold text-forest-800 group-hover:text-forest-600 transition-colors cursor-pointer">
+                    {product.name}
+                  </h3>
+                  <span className='text-sm'>Stock: {product.stock}</span>
+                </div>
               </Link>
               <div className="flex items-center space-x-2">
                 <div className="flex items-center space-x-1">
                   <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                  <span className="text-sm font-medium">4.8</span>
+                  <span className="text-sm font-medium">{product.rating.average}</span>
                 </div>
-                <span className="text-sm text-muted-foreground">({product.stock} tersedia)</span>
+                <span className="text-sm text-muted-foreground">({product.rating.count} ulasan)</span>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <p className="text-sm text-muted-foreground">{truncateDescription(product.description)}</p>
+              <p className="text-sm text-muted-foreground h-24">{truncateDescription(product.description)}</p>
               <div className="flex items-center justify-between">
                 <span className="text-2xl font-bold text-forest-800">
                   {formatPrice(product.price)}
@@ -205,7 +208,7 @@ const Products = () => {
                 </span>
               </div>
               <div className="flex space-x-2">
-                <Button 
+                <Button
                   variant="outline"
                   className="flex-1"
                   onClick={() => handleAddToCart(product.id)}
@@ -213,7 +216,7 @@ const Products = () => {
                 >
                   <ShoppingCart className="h-4 w-4" />
                 </Button>
-                <Button 
+                <Button
                   className="flex-[2] bg-forest-600 hover:bg-forest-700 text-white"
                   onClick={() => handleOrderNow(product)}
                   disabled={product.stock === 0}

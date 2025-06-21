@@ -1,3 +1,4 @@
+
 import { ReactNode, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -15,7 +16,8 @@ import {
   Mail,
   Menu,
   LogOut,
-  ChevronDown
+  ChevronDown,
+  BarChart3
 } from 'lucide-react';
 
 interface AdminLayoutProps {
@@ -33,6 +35,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     { name: 'Categories', href: '/admin/categories', icon: ChevronDown },
     { name: 'Orders', href: '/admin/orders', icon: ShoppingCart },
     { name: 'Users', href: '/admin/users', icon: Users },
+    { name: 'Reports', href: '/admin/reports', icon: BarChart3 },
     { name: 'Reviews', href: '/admin/reviews', icon: Star },
     { name: 'Testimonials', href: '/admin/testimonials', icon: MessageSquare },
     { name: 'Blog', href: '/admin/blog', icon: FileText },
@@ -48,7 +51,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
   const adminName = JSON.parse(localStorage.getItem('user') || '{}')?.fullname || 'Admin';
 
   const SidebarContent = () => (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full print:hidden">
       <div className="p-6 border-b border-border">
         <div className="flex items-center space-x-2">
           <div className="w-8 h-8">
@@ -101,13 +104,13 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
   return (
     <div className="min-h-screen flex bg-rice-50">
       {/* Desktop Sidebar */}
-      <div className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0 bg-white border-r border-border">
+      <div className="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0 bg-white border-r border-border print:hidden">
         <SidebarContent />
       </div>
 
       {/* Mobile Sidebar */}
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
-        <div className="lg:hidden">
+        <div className="lg:hidden print:hidden">
           <div className="flex items-center justify-between p-4 border-b border-border bg-white">
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8">
@@ -122,7 +125,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
             </SheetTrigger>
           </div>
         </div>
-        <SheetContent side="left" className="w-64 p-0">
+        <SheetContent side="left" className="w-64 p-0 print:hidden">
           <SidebarContent />
         </SheetContent>
       </Sheet>

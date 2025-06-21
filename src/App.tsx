@@ -34,6 +34,7 @@ import AdminBlog from "./pages/admin/AdminBlog";
 import AdminMessages from "./pages/admin/AdminMessages";
 import AdminLayout from "./components/admin/AdminLayout";
 import ProtectedAdminRoute from "./components/admin/ProtectedAdminRoute";
+import AdminReports from "./pages/admin/AdminReports";
 
 const queryClient = new QueryClient();
 
@@ -51,7 +52,7 @@ const pageTransition = {
 
 const AnimatedPage = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
-  
+
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -90,16 +91,17 @@ const App = () => (
                     <Route path="testimonials" element={<AdminTestimonials />} />
                     <Route path="blog" element={<AdminBlog />} />
                     <Route path="messages" element={<AdminMessages />} />
+                    <Route path="reports" element={<AdminReports />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </AnimatedPage>
               </AdminLayout>
             </ProtectedAdminRoute>
-          } />
-          
+          } />``
+
           {/* Home Route - No Layout wrapper since Index handles its own layout */}
           <Route path="/" element={<Layout><AnimatedPage><Index /></AnimatedPage></Layout>} />
-          
+
           {/* Public Routes - With Layout wrapper */}
           <Route path="/products" element={<Layout><AnimatedPage><Products /></AnimatedPage></Layout>} />
           <Route path="/products/:id" element={<Layout><AnimatedPage><ProductDetail /></AnimatedPage></Layout>} />

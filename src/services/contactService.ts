@@ -1,75 +1,71 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { API_CONFIG } from '@/config/api';
+
+const handleResponse = async (response: Response) => {
+  const data = await response.json();
+  if (!response.ok) {
+    const errorMessage = data.errors && data.errors.length > 0
+      ? data.errors.map((err: any) => err.message || err).join(', ')
+      : data.message || `HTTP error! status: ${response.status}`;
+
+    const error = new Error(errorMessage);
+    (error as any).response = { data };
+    (error as any).errors = data.errors;
+    throw error;
+  }
+  return data;
+};
+
+export interface SendContactRequest {
+  fullname: string;
+  email: string;
+  phone?: string;
+  subject: string;
+  message: string;
+}
 
 export interface ContactMessage {
   id: string;
   fullname: string;
-  phone: string;
   email: string;
+  phone?: string;
   subject: string;
   message: string;
-  isReplied: boolean;
+  isReplied?: boolean;
+  createdAt: string;
 }
 
-export interface ContactResponse {
-  status: boolean;
-  message: string;
-  data: ContactMessage[];
-}
-
-export interface SendContactRequest {
-  fullname: string;
-  phone: string;
-  email: string;
-  subject: string;
-  message: string;
-}
-
-export interface SendContactResponse {
-  status: boolean;
-  message: string;
-  data: null;
-}
-
-export class ContactService {
-  private static baseURL = `${API_CONFIG.baseURL}${API_CONFIG.endpoints.contact}`;
-
-  private static getAuthHeaders() {
-    const token = localStorage.getItem('auth_token');
-    return {
-      'Content-Type': 'application/json',
-      ...(token && { 'Authorization': `Bearer ${token}` })
-    };
-  }
-
-  static async sendMessage(contactData: SendContactRequest): Promise<SendContactResponse> {
-    const response = await fetch(`${this.baseURL}s`, {
+export const ContactService = {
+  submitContact: async (contactData: { name: string; email: string; message: string }) => {
+    const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.contact}`, {
       method: 'POST',
-      headers: this.getAuthHeaders(),
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify(contactData),
     });
+    return handleResponse(response);
+  },
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message || `HTTP error! status: ${response.status}`);
-    }
-
-    return data;
-  }
-
-  static async getMessages(): Promise<ContactResponse> {
-    const response = await fetch(`${this.baseURL}s`, {
-      method: 'GET',
-      headers: this.getAuthHeaders(),
+  sendMessage: async (contactData: SendContactRequest) => {
+    const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.contact}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(contactData),
     });
+    return handleResponse(response);
+  },
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message || `HTTP error! status: ${response.status}`);
-    }
-
-    return data;
-  }
-}
+  getMessages: async () => {
+    const token = localStorage.getItem('auth_token');
+    const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.contact}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    return handleResponse(response);
+  },
+};

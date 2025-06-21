@@ -1,22 +1,23 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
 } from '@/components/ui/table';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogTrigger 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
 } from '@/components/ui/dialog';
 import { Search, Eye, Trash2, Star } from 'lucide-react';
 import { useReviews } from '@/hooks/useApi';
@@ -28,7 +29,6 @@ const AdminReviews = () => {
 
   const { data: reviewsResponse, isLoading } = useReviews();
   const reviews = reviewsResponse?.data || [];
-
   const ratingOptions = [
     { value: 'all', label: 'All Ratings' },
     { value: '5', label: '5 Stars' },
@@ -39,8 +39,8 @@ const AdminReviews = () => {
   ];
 
   const filteredReviews = reviews.filter((review: any) => {
-    const matchesSearch = 
-      review.User?.fullname?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const matchesSearch =
+      review.Account?.User?.fullname?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       review.Product?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       review.comment?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRating = ratingFilter === 'all' || review.rating.toString() === ratingFilter;
@@ -49,18 +49,11 @@ const AdminReviews = () => {
 
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, i) => (
-      <Star 
-        key={i} 
-        className={`h-4 w-4 ${i < rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`} 
+      <Star
+        key={i}
+        className={`h-4 w-4 ${i < rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`}
       />
     ));
-  };
-
-  const handleDeleteReview = (reviewId: string) => {
-    if (confirm('Are you sure you want to delete this review?')) {
-      console.log('Delete review:', reviewId);
-      // Implement delete logic here
-    }
   };
 
   const ReviewDetails = ({ review }: { review: any }) => (
@@ -68,14 +61,14 @@ const AdminReviews = () => {
       <div className="grid grid-cols-2 gap-4">
         <div>
           <h3 className="font-medium text-forest-800 mb-2">Customer</h3>
-          <p className="text-sm">{review.User?.fullname || 'Anonymous'}</p>
+          <p className="text-sm">{review.Account?.User?.fullname}</p>
         </div>
         <div>
           <h3 className="font-medium text-forest-800 mb-2">Product</h3>
           <p className="text-sm">{review.Product?.name || 'Unknown Product'}</p>
         </div>
       </div>
-      
+
       <div>
         <h3 className="font-medium text-forest-800 mb-2">Rating</h3>
         <div className="flex items-center space-x-1">
@@ -127,7 +120,7 @@ const AdminReviews = () => {
               </div>
             </div>
             <div className="w-full md:w-48">
-              <select 
+              <select
                 className="w-full p-2 border rounded-md"
                 value={ratingFilter}
                 onChange={(e) => setRatingFilter(e.target.value)}
@@ -162,7 +155,7 @@ const AdminReviews = () => {
             <TableBody>
               {filteredReviews.map((review: any) => (
                 <TableRow key={review.id}>
-                  <TableCell className="font-medium">{review.User?.fullname || 'Anonymous'}</TableCell>
+                  <TableCell className="font-medium">{review.Account?.User?.fullname || 'Anonymous'}</TableCell>
                   <TableCell>{review.Product?.name || 'Unknown Product'}</TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-1">
@@ -191,21 +184,13 @@ const AdminReviews = () => {
                           <ReviewDetails review={review} />
                         </DialogContent>
                       </Dialog>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => handleDeleteReview(review.id)}
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
                     </div>
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-          
+
           {/* Empty State */}
           {filteredReviews.length === 0 && (
             <div className="text-center py-8">

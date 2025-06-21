@@ -1,5 +1,21 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { API_CONFIG } from '@/config/api';
+
+const handleResponse = async (response: Response) => {
+  const data = await response.json();
+  if (!response.ok) {
+    const errorMessage = data.errors && data.errors.length > 0
+      ? data.errors.map((err: any) => err.message || err).join(', ')
+      : data.message || `HTTP error! status: ${response.status}`;
+
+    const error = new Error(errorMessage);
+    (error as any).response = { data };
+    (error as any).errors = data.errors;
+    throw error;
+  }
+  return data;
+};
 
 export interface CreateOrderRequest {
   shippingId: string;
@@ -15,41 +31,61 @@ export interface CreateOrderRequest {
   }>;
 }
 
-export interface CreateOrderResponse {
-  status: boolean;
-  message: string;
-  data: {
-    id: string;
-    orderNumber: string;
-    total: number;
-    paymentUrl: string;
-  };
-}
-
-export class OrderService {
-  private static baseURL = `${API_CONFIG.baseURL}${API_CONFIG.endpoints.orders}`;
-
-  private static getAuthHeaders() {
+export const OrderService = {
+  getOrders: async (params?: string) => {
     const token = localStorage.getItem('auth_token');
-    return {
-      'Content-Type': 'application/json',
-      ...(token && { 'Authorization': `Bearer ${token}` })
-    };
-  }
+    const url = `${API_CONFIG.baseURL}${API_CONFIG.endpoints.orders}/me${params || ''}`;
+    const response = await fetch(url, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    return handleResponse(response);
+  },
 
-  static async createOrder(orderData: CreateOrderRequest): Promise<CreateOrderResponse> {
-    const response = await fetch(this.baseURL, {
+  getOrderDetail: async (orderId: string) => {
+    const token = localStorage.getItem('auth_token');
+    const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.orders}/${orderId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    return handleResponse(response);
+  },
+
+  updateOrderStatus: async (orderId: string, status: string) => {
+    const token = localStorage.getItem('auth_token');
+    const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.orders}/${orderId}/status`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ status }),
+    });
+    return handleResponse(response);
+  },
+
+  getOrdersCount: async () => {
+    const response = await fetch(`${API_CONFIG.baseURL}/orders/count`);
+    return handleResponse(response);
+  },
+
+  getRecentOrders: async () => {
+    const response = await fetch(`${API_CONFIG.baseURL}/orders/recent`);
+    return handleResponse(response);
+  },
+
+  createOrder: async (orderData: CreateOrderRequest) => {
+    const token = localStorage.getItem('auth_token');
+    const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.orders}`, {
       method: 'POST',
-      headers: this.getAuthHeaders(),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
       body: JSON.stringify(orderData),
     });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message || `HTTP error! status: ${response.status}`);
-    }
-
-    return data;
-  }
-}
+    return handleResponse(response);
+  },
+};

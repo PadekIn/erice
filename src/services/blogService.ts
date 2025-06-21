@@ -1,125 +1,87 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { API_CONFIG } from '@/config/api';
+
+const handleResponse = async (response: Response) => {
+  const data = await response.json();
+  if (!response.ok) {
+    const errorMessage = data.errors && data.errors.length > 0
+      ? data.errors.map((err: any) => err.message || err).join(', ')
+      : data.message || `HTTP error! status: ${response.status}`;
+
+    const error = new Error(errorMessage);
+    (error as any).response = { data };
+    (error as any).errors = data.errors;
+    throw error;
+  }
+  return data;
+};
 
 export interface Blog {
   id: string;
   title: string;
-  metaDesc: string;
   content: string;
   image: string;
+  slug: string;
+  metaDesc: string;
   isPublished: boolean;
   createdAt: string;
+  updatedAt: string;
   Author: {
-    id: string;
-    email: string;
     User: {
       fullname: string;
-    }
+    };
   };
 }
 
-export interface BlogsResponse {
-  status: boolean;
-  message: string;
-  data: Blog[];
-}
+export const BlogService = {
+  getBlogPosts: async () => {
+    const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.blog}`);
+    return handleResponse(response);
+  },
 
-export interface BlogResponse {
-  status: boolean;
-  message: string;
-  data: Blog;
-}
+  getBlogs: async () => {
+    const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.blog}`);
+    return handleResponse(response);
+  },
 
-export interface BlogActionResponse {
-  status: boolean;
-  message: string;
-  data: null;
-}
+  getBlog: async (id: string) => {
+    const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.blog}/${id}`);
+    return handleResponse(response);
+  },
 
-export class BlogService {
-  private static baseURL = `${API_CONFIG.baseURL}${API_CONFIG.endpoints.blog}`;
-
-  private static getAuthHeaders() {
+  createBlog: async (formData: FormData) => {
     const token = localStorage.getItem('auth_token');
-    return {
-      ...(token && { 'Authorization': `Bearer ${token}` })
-    };
-  }
-
-  static async getBlogs(): Promise<BlogsResponse> {
-    const response = await fetch(this.baseURL, {
-      method: 'GET',
-      headers: this.getAuthHeaders(),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message || `HTTP error! status: ${response.status}`);
-    }
-
-    return data;
-  }
-
-  static async getBlog(id: string): Promise<BlogResponse> {
-    const response = await fetch(`${this.baseURL}/${id}`, {
-      method: 'GET',
-      headers: this.getAuthHeaders(),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message || `HTTP error! status: ${response.status}`);
-    }
-
-    return data;
-  }
-
-  static async createBlog(formData: FormData): Promise<BlogActionResponse> {
-    const response = await fetch(this.baseURL, {
+    const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.blog}`, {
       method: 'POST',
-      headers: this.getAuthHeaders(),
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
       body: formData,
     });
+    return handleResponse(response);
+  },
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message || `HTTP error! status: ${response.status}`);
-    }
-
-    return data;
-  }
-
-  static async updateBlog(id: string, formData: FormData): Promise<BlogActionResponse> {
-    const response = await fetch(`${this.baseURL}/${id}`, {
-      method: 'PATCH',
-      headers: this.getAuthHeaders(),
+  updateBlog: async (id: string, formData: FormData) => {
+    const token = localStorage.getItem('auth_token');
+    const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.blog}/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
       body: formData,
     });
+    return handleResponse(response);
+  },
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message || `HTTP error! status: ${response.status}`);
-    }
-
-    return data;
-  }
-
-  static async deleteBlog(id: string): Promise<BlogActionResponse> {
-    const response = await fetch(`${this.baseURL}/${id}`, {
+  deleteBlog: async (id: string) => {
+    const token = localStorage.getItem('auth_token');
+    const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.blog}/${id}`, {
       method: 'DELETE',
-      headers: this.getAuthHeaders(),
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
     });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.message || `HTTP error! status: ${response.status}`);
-    }
-
-    return data;
-  }
-}
+    return handleResponse(response);
+  },
+};

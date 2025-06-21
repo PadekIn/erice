@@ -22,7 +22,7 @@ interface ProductTableProps {
 const ProductTable = ({ products, onEdit, onDelete }: ProductTableProps) => {
   const getStatusBadge = (stock: number) => {
     if (stock === 0) return <Badge variant="destructive">Out of Stock</Badge>;
-    if (stock < 50) return <Badge className="bg-yellow-500">Low Stock</Badge>;
+    if (stock <= 5 ) return <Badge className="bg-yellow-500">Low Stock</Badge>;
     return <Badge className="bg-green-500">In Stock</Badge>;
   };
 

@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useOrderDetail } from '@/hooks/useApi';
-import { Calendar, Package, MapPin, CreditCard, User, FileText, Gift, Phone, Truck } from 'lucide-react';
+import { Calendar, Package, MapPin, CreditCard, User, FileText, Gift, Phone, Truck, Copy, Check } from 'lucide-react';
 import { useState } from 'react';
 import SnapPaymentModal from './SnapPaymentModal';
 
@@ -19,6 +19,18 @@ const OrderDetailModal = ({ isOpen, onClose, orderId }: OrderDetailModalProps) =
   const orderDetail = orderResponse?.data;
   const [isSnapModalOpen, setIsSnapModalOpen] = useState(false);
   const [snapUrl, setSnapUrl] = useState<string>('');
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(orderDetail.receiptNumber)
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      })
+      .catch((err) => {
+        console.error("Copy failed: ", err);
+      });
+  };
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -107,7 +119,7 @@ const OrderDetailModal = ({ isOpen, onClose, orderId }: OrderDetailModalProps) =
                 <div className="flex items-center space-x-2">
                   <CreditCard className="h-5 w-5 text-muted-foreground" />
                   <span className="font-medium">Payment Status:</span>
-                  <Badge className={orderDetail.paymentStatus === 'Pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}>
+                  <Badge className={orderDetail.paymentStatus === 'Pending' ? 'bg-yellow-100 text-yellow-800' : orderDetail.paymentStatus === 'Completed' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
                     {orderDetail.paymentStatus}
                   </Badge>
                 </div>
@@ -126,8 +138,25 @@ const OrderDetailModal = ({ isOpen, onClose, orderId }: OrderDetailModalProps) =
                 </div>
                 <div className="flex items-center space-x-2">
                   <Truck className="h-5 w-5 text-muted-foreground" />
-                  <span className="font-medium">Ekspedisi:</span>
-                  <span>{orderDetail.Shipping.name}</span>
+                  <span className="font-medium">Shipper:</span>
+                  <span>{orderDetail.Shipping.name}
+                    {orderDetail.receiptNumber && (
+                      <>
+                        <span className='italic text-blue-700 tracking-wider'> / {orderDetail.receiptNumber}</span>
+                        <button
+                          onClick={handleCopy}
+                          className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                          title="Copy receipt number"
+                        >
+                          {copied ? (
+                            <Check className="w-4 h-4 text-green-500" />
+                          ) : (
+                            <Copy className="w-4 h-4 text-gray-600" />
+                          )}
+                        </button>
+                      </>
+                    )}
+                  </span>
                 </div>
               </div>
             </div>
@@ -204,17 +233,12 @@ const OrderDetailModal = ({ isOpen, onClose, orderId }: OrderDetailModalProps) =
               <Button variant="outline" onClick={onClose}>
                 Close
               </Button>
-              {orderDetail.paymentStatus === 'Pending' && (
+              {orderDetail.paymentStatus === 'Pending' && orderDetail.status === 'Pending' && (
                 <Button className="bg-forest-600 hover:bg-forest-700" onClick={(e) => {
                   e.stopPropagation();
                   handlePaymentClick(orderDetail.paymentUrl)
                 }}>
                   Pay Now
-                </Button>
-              )}
-              {orderDetail.status === 'Completed' && (
-                <Button className="bg-forest-600 hover:bg-forest-700">
-                  Give Review
                 </Button>
               )}
             </div>

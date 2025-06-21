@@ -1,57 +1,115 @@
-
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Package, ShoppingCart, Users, TrendingUp } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { ProductService } from '@/services/productService';
+import { OrderService } from '@/services/orderService';
+import { UserService } from '@/services/userService';
+import { ReportService } from '@/services/reportService';
+import { toast } from 'sonner';
+
+interface DashboardStats {
+  totalProducts: number;
+  totalOrders: number;
+  totalUsers: number;
+  monthlyRevenue: number;
+}
+
+interface SalesChartData {
+  name: string;
+  sales: number;
+}
+
+interface RecentOrder {
+  id: string;
+  orderNumber: string;
+  customer: string;
+  total: string;
+  status: string;
+  date: string;
+}
 
 const AdminDashboard = () => {
-  // Mock data - replace with actual API calls
-  const stats = [
-    {
-      title: 'Total Products',
-      value: '156',
-      change: '+12%',
-      icon: Package,
-      color: 'text-forest-600'
-    },
-    {
-      title: 'Total Orders',
-      value: '2,847',
-      change: '+23%',
-      icon: ShoppingCart,
-      color: 'text-earth-600'
-    },
-    {
-      title: 'Total Users',
-      value: '1,429',
-      change: '+8%',
-      icon: Users,
-      color: 'text-rice-600'
-    },
-    {
-      title: 'Monthly Revenue',
-      value: 'Rp 45,230,000',
-      change: '+18%',
-      icon: TrendingUp,
-      color: 'text-forest-600'
+  const [stats, setStats] = useState<DashboardStats>({
+    totalProducts: 0,
+    totalOrders: 0,
+    totalUsers: 0,
+    monthlyRevenue: 0
+  });
+  const [salesData, setSalesData] = useState<SalesChartData[]>([]);
+  const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      
+      // Fetch all dashboard data concurrently
+      const [
+        productsResponse,
+        ordersResponse,
+        usersResponse,
+        salesResponse,
+        chartResponse,
+        recentOrdersResponse
+      ] = await Promise.all([
+        ProductService.getProductsCount(),
+        OrderService.getOrdersCount(),
+        UserService.getUsersCount(),
+        ReportService.getMonthlySales(),
+        ReportService.getSalesChart(),
+        OrderService.getRecentOrders()
+      ]);
+
+      // Update stats
+      setStats({
+        totalProducts: productsResponse.status ? productsResponse.data.productCount : 0,
+        totalOrders: ordersResponse.status ? ordersResponse.data.orderCount : 0,
+        totalUsers: usersResponse.status ? usersResponse.data.userCount : 0,
+        monthlyRevenue: salesResponse.status ? salesResponse.data.total : 0
+      });
+
+      // Update sales chart data
+      if (chartResponse.status && chartResponse.data) {
+        const formattedChartData = chartResponse.data.map((item: any) => ({
+          name: new Date(item.month + '-01').toLocaleDateString('id-ID', { month: 'short' }),
+          sales: item.totalSales
+        }));
+        setSalesData(formattedChartData);
+      }
+
+      // Update recent orders
+      if (recentOrdersResponse.status && recentOrdersResponse.data) {
+        const formattedOrders = recentOrdersResponse.data.map((order: any) => ({
+          id: order.id,
+          orderNumber: order.orderNumber,
+          customer: order.User.fullname,
+          total: formatPrice(order.total),
+          status: order.status,
+          date: new Date(order.createdAt).toLocaleDateString('id-ID')
+        }));
+        setRecentOrders(formattedOrders);
+      }
+
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+      toast.error('Failed to load dashboard data');
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
-  const salesData = [
-    { name: 'Jan', sales: 4000 },
-    { name: 'Feb', sales: 3000 },
-    { name: 'Mar', sales: 5000 },
-    { name: 'Apr', sales: 4500 },
-    { name: 'May', sales: 6000 },
-    { name: 'Jun', sales: 5500 },
-  ];
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
 
-  const recentOrders = [
-    { id: 'ORD-001', customer: 'Ahmad Rizki', total: 'Rp 125,000', status: 'completed', date: '2024-05-27' },
-    { id: 'ORD-002', customer: 'Siti Nurhaliza', total: 'Rp 85,000', status: 'processing', date: '2024-05-27' },
-    { id: 'ORD-003', customer: 'Budi Santoso', total: 'Rp 200,000', status: 'pending', date: '2024-05-26' },
-    { id: 'ORD-004', customer: 'Maya Sari', total: 'Rp 150,000', status: 'completed', date: '2024-05-26' },
-    { id: 'ORD-005', customer: 'Joko Widodo', total: 'Rp 95,000', status: 'processing', date: '2024-05-25' },
-  ];
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0
+    }).format(price);
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -62,6 +120,37 @@ const AdminDashboard = () => {
     }
   };
 
+  const statsCards = [
+    {
+      title: 'Total Products',
+      value: loading ? 'Loading...' : stats.totalProducts.toString(),
+      change: '+12%',
+      icon: Package,
+      color: 'text-forest-600'
+    },
+    {
+      title: 'Total Orders',
+      value: loading ? 'Loading...' : stats.totalOrders.toLocaleString('id-ID'),
+      change: '+23%',
+      icon: ShoppingCart,
+      color: 'text-earth-600'
+    },
+    {
+      title: 'Total Users',
+      value: loading ? 'Loading...' : stats.totalUsers.toLocaleString('id-ID'),
+      change: '+8%',
+      icon: Users,
+      color: 'text-rice-600'
+    },
+    {
+      title: 'Monthly Revenue',
+      value: loading ? 'Loading...' : formatPrice(stats.monthlyRevenue),
+      change: '+18%',
+      icon: TrendingUp,
+      color: 'text-forest-600'
+    }
+  ];
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -71,7 +160,7 @@ const AdminDashboard = () => {
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => (
+        {statsCards.map((stat, index) => (
           <Card key={index} className="hover:shadow-lg transition-shadow">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -96,22 +185,30 @@ const AdminDashboard = () => {
             <CardTitle className="text-forest-800">Sales Performance</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={salesData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line 
-                  type="monotone" 
-                  dataKey="sales" 
-                  stroke="#339933" 
-                  strokeWidth={2}
-                  dot={{ fill: '#339933' }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
+            {loading ? (
+              <div className="flex items-center justify-center h-[300px]">
+                <p className="text-muted-foreground">Loading chart data...</p>
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={salesData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip 
+                    formatter={(value) => [formatPrice(Number(value)), 'Sales']}
+                  />
+                  <Legend />
+                  <Line 
+                    type="monotone" 
+                    dataKey="sales" 
+                    stroke="#339933" 
+                    strokeWidth={2}
+                    dot={{ fill: '#339933' }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            )}
           </CardContent>
         </Card>
 
@@ -121,22 +218,32 @@ const AdminDashboard = () => {
             <CardTitle className="text-forest-800">Recent Orders</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {recentOrders.map((order) => (
-                <div key={order.id} className="flex items-center justify-between p-3 bg-rice-50 rounded-lg">
-                  <div className="flex-1">
-                    <p className="font-medium text-forest-800">{order.customer}</p>
-                    <p className="text-sm text-muted-foreground">{order.id} • {order.date}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-medium text-forest-800">{order.total}</p>
-                    <span className={`inline-block px-2 py-1 text-xs rounded-full ${getStatusColor(order.status)}`}>
-                      {order.status}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
+            {loading ? (
+              <div className="flex items-center justify-center h-[300px]">
+                <p className="text-muted-foreground">Loading recent orders...</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {recentOrders.length === 0 ? (
+                  <p className="text-center text-muted-foreground py-8">No recent orders found</p>
+                ) : (
+                  recentOrders.map((order) => (
+                    <div key={order.id} className="flex items-center justify-between p-3 bg-rice-50 rounded-lg">
+                      <div className="flex-1">
+                        <p className="font-medium text-forest-800">{order.customer}</p>
+                        <p className="text-sm text-muted-foreground">{order.orderNumber} • {order.date}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-medium text-forest-800">{order.total}</p>
+                        <span className={`inline-block px-2 py-1 text-xs rounded-full ${getStatusColor(order.status)}`}>
+                          {order.status}
+                        </span>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

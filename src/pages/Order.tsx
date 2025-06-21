@@ -79,7 +79,7 @@ const Order = () => {
   useEffect(() => {
     const directOrderItems = sessionStorage.getItem('directOrderItems');
     const selectedCartItems = sessionStorage.getItem('selectedCartItems');
-    
+
     if (selectedCartItems) {
       try {
         const items: SelectedCartItem[] = JSON.parse(selectedCartItems);
@@ -126,6 +126,11 @@ const Order = () => {
 
   if (!isAuthenticated) {
     setTimeout(() => navigate('/login'), 100);
+    return null;
+  }
+
+  if (!isSnapModalOpen && orderItems.length === 0) {
+    navigate('/orders');
     return null;
   }
 
@@ -191,6 +196,23 @@ const Order = () => {
       const response = await createOrderMutation.mutateAsync(orderData);
 
       if (response.data.paymentUrl) {
+        // Remove cart items if they came from cart selection
+        if (cartItemsToRemove.length > 0) {
+          try {
+            // Loop through each cart item and remove it
+            for (const cartItemId of cartItemsToRemove) {
+              await removeCartItemMutation.mutateAsync(cartItemId);
+            }
+          } catch (error) {
+            console.error('Error removing cart items:', error);
+            toast({
+              title: "Warning",
+              description: "Pesanan berhasil dibuat, namun ada masalah menghapus item dari keranjang",
+              className: "bg-yellow-50 border-yellow-200 text-yellow-800",
+            });
+          }
+        }
+        // Set Snap URL and open modal
         setSnapUrl(response.data.paymentUrl);
         setIsSnapModalOpen(true);
         // Clear session storage items
@@ -204,18 +226,13 @@ const Order = () => {
 
   const handlePaymentSuccess = async () => {
     setIsSnapModalOpen(false);
-    
-    // Remove cart items if they came from cart selection
-    if (cartItemsToRemove.length > 0) {
-      try {
-        for (const cartItemId of cartItemsToRemove) {
-          await removeCartItemMutation.mutateAsync(cartItemId);
-        }
-      } catch (error) {
-        console.error('Error removing cart items:', error);
-      }
-    }
-    
+
+    toast({
+      title: "Pembayaran Berhasil",
+      description: "Pesanan Anda telah berhasil dibuat dan sedang diproses",
+      className: "bg-green-50 border-green-200 text-green-800",
+    });
+
     navigate('/orders');
   };
 
@@ -227,11 +244,6 @@ const Order = () => {
         </div>
       </div>
     );
-  }
-
-  if (orderItems.length === 0) {
-    navigate('/cart');
-    return null;
   }
 
   return (
