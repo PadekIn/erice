@@ -41,7 +41,7 @@ export const CartService = {
 
   addToCart: async (productId: string, qty: number) => {
     const token = localStorage.getItem('auth_token');
-    const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.carts}`, {
+    const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.carts}/add`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -54,8 +54,8 @@ export const CartService = {
 
   incrementItem: async (id: string) => {
     const token = localStorage.getItem('auth_token');
-    const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.carts}/increment/${id}`, {
-      method: 'PUT',
+    const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.carts}/item/inc/${id}`, {
+      method: 'PATCH',
       headers: {
         'Authorization': `Bearer ${token}`,
       },
@@ -69,8 +69,8 @@ export const CartService = {
 
   decrementItem: async (id: string) => {
     const token = localStorage.getItem('auth_token');
-    const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.carts}/decrement/${id}`, {
-      method: 'PUT',
+    const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.carts}/item/dec/${id}`, {
+      method: 'PATCH',
       headers: {
         'Authorization': `Bearer ${token}`,
       },
@@ -84,7 +84,7 @@ export const CartService = {
 
   removeItem: async (id: string) => {
     const token = localStorage.getItem('auth_token');
-    const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.carts}/${id}`, {
+    const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.carts}/item/remove/${id}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${token}`,

@@ -19,7 +19,6 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 import Orders from "./pages/Orders";
 import Blog from "./pages/Blog";
 import BlogDetail from "./pages/BlogDetail";
-import TestimonialsPage from "./pages/Testimonials";
 import Contact from "./pages/Contact";
 import About from "./pages/About";
 import NotFound from "./pages/NotFound";
@@ -29,7 +28,6 @@ import AdminOrders from "./pages/admin/AdminOrders";
 import AdminCategories from "./pages/admin/AdminCategories";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminReviews from "./pages/admin/AdminReviews";
-import AdminTestimonials from "./pages/admin/AdminTestimonials";
 import AdminBlog from "./pages/admin/AdminBlog";
 import AdminMessages from "./pages/admin/AdminMessages";
 import AdminLayout from "./components/admin/AdminLayout";
@@ -69,6 +67,51 @@ const AnimatedPage = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
+const PageRoute = ({ element }: { element: React.ReactNode }) => (
+  <Layout>
+    <AnimatedPage>{element}</AnimatedPage>
+  </Layout>
+);
+
+const publicRoutes = [
+  { path: "/products", element: <Products /> },
+  { path: "/products/:id", element: <ProductDetail /> },
+  { path: "/about", element: <About /> },
+  { path: "/cart", element: <Cart /> },
+  { path: "/order", element: <Order /> },
+  { path: "/login", element: <Login /> },
+  { path: "/auth", element: <EmailVerification /> },
+  { path: "/auth/reset-password/:code", element: <ResetPassword /> },
+  { path: "/payment", element: <Payment /> },
+  { path: "/payment-success", element: <PaymentSuccess /> },
+  { path: "/orders", element: <Orders /> },
+  { path: "/blog", element: <Blog /> },
+  { path: "/blog/:id", element: <BlogDetail /> },
+  { path: "/contact", element: <Contact /> },
+];
+
+const AdminRoutes = () => (
+  <ProtectedAdminRoute>
+    <AdminLayout>
+      <AnimatedPage>
+        <Routes>
+          <Route index element={<AdminDashboard />} />
+          <Route path="products" element={<AdminProducts />} />
+          <Route path="categories" element={<AdminCategories />} />
+          <Route path="orders" element={<AdminOrders />} />
+          <Route path="users" element={<AdminUsers />} />
+          <Route path="reviews" element={<AdminReviews />} />
+          <Route path="blog" element={<AdminBlog />} />
+          <Route path="messages" element={<AdminMessages />} />
+          <Route path="reports" element={<AdminReports />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </AnimatedPage>
+    </AdminLayout>
+  </ProtectedAdminRoute>
+);
+
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -76,49 +119,12 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          {/* Admin Routes - No Layout wrapper, uses AdminLayout instead */}
-          <Route path="/admin/*" element={
-            <ProtectedAdminRoute>
-              <AdminLayout>
-                <AnimatedPage>
-                  <Routes>
-                    <Route index element={<AdminDashboard />} />
-                    <Route path="products" element={<AdminProducts />} />
-                    <Route path="categories" element={<AdminCategories />} />
-                    <Route path="orders" element={<AdminOrders />} />
-                    <Route path="users" element={<AdminUsers />} />
-                    <Route path="reviews" element={<AdminReviews />} />
-                    <Route path="testimonials" element={<AdminTestimonials />} />
-                    <Route path="blog" element={<AdminBlog />} />
-                    <Route path="messages" element={<AdminMessages />} />
-                    <Route path="reports" element={<AdminReports />} />
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </AnimatedPage>
-              </AdminLayout>
-            </ProtectedAdminRoute>
-          } />``
-
-          {/* Home Route - No Layout wrapper since Index handles its own layout */}
-          <Route path="/" element={<Layout><AnimatedPage><Index /></AnimatedPage></Layout>} />
-
-          {/* Public Routes - With Layout wrapper */}
-          <Route path="/products" element={<Layout><AnimatedPage><Products /></AnimatedPage></Layout>} />
-          <Route path="/products/:id" element={<Layout><AnimatedPage><ProductDetail /></AnimatedPage></Layout>} />
-          <Route path="/about" element={<Layout><AnimatedPage><About /></AnimatedPage></Layout>} />
-          <Route path="/cart" element={<Layout><AnimatedPage><Cart /></AnimatedPage></Layout>} />
-          <Route path="/order" element={<Layout><AnimatedPage><Order /></AnimatedPage></Layout>} />
-          <Route path="/login" element={<Layout><AnimatedPage><Login /></AnimatedPage></Layout>} />
-          <Route path="/auth" element={<Layout><AnimatedPage><EmailVerification /></AnimatedPage></Layout>} />
-          <Route path="/auth/reset-password/:code" element={<Layout><AnimatedPage><ResetPassword /></AnimatedPage></Layout>} />
-          <Route path="/payment" element={<Layout><AnimatedPage><Payment /></AnimatedPage></Layout>} />
-          <Route path="/payment-success" element={<Layout><AnimatedPage><PaymentSuccess /></AnimatedPage></Layout>} />
-          <Route path="/orders" element={<Layout><AnimatedPage><Orders /></AnimatedPage></Layout>} />
-          <Route path="/blog" element={<Layout><AnimatedPage><Blog /></AnimatedPage></Layout>} />
-          <Route path="/blog/:id" element={<Layout><AnimatedPage><BlogDetail /></AnimatedPage></Layout>} />
-          <Route path="/testimonials" element={<Layout><AnimatedPage><TestimonialsPage /></AnimatedPage></Layout>} />
-          <Route path="/contact" element={<Layout><AnimatedPage><Contact /></AnimatedPage></Layout>} />
-          <Route path="*" element={<Layout><AnimatedPage><NotFound /></AnimatedPage></Layout>} />
+          <Route path="/admin/*" element={<AdminRoutes />} />
+          <Route path="/" element={<PageRoute element={<Index />} />} />
+          {publicRoutes.map(({ path, element }) => (
+            <Route key={path} path={path} element={<PageRoute element={element} />} />
+          ))}
+          <Route path="*" element={<PageRoute element={<NotFound />} />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

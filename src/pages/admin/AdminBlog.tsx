@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -26,7 +27,7 @@ const AdminBlog = () => {
 
   const blogs = blogsData?.data || [];
 
-  const filteredPosts = blogs.filter(blog => {
+  const filteredPosts = blogs.filter((blog: any) => {
     const matchesSearch =
       blog.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       blog.metaDesc.toLowerCase().includes(searchTerm.toLowerCase());

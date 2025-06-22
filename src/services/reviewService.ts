@@ -28,12 +28,22 @@ export interface Review {
 
 export const ReviewService = {
   getReviews: async () => {
-    const response = await fetch(`${API_CONFIG.baseURL}/reviews`);
+    const token = localStorage.getItem('auth_token');
+    const response = await fetch(`${API_CONFIG.baseURL}/reviews`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
     return handleResponse(response);
   },
 
   getReviewsRecap: async () => {
-    const response = await fetch(`${API_CONFIG.baseURL}/reviews/recap`);
+    const token = localStorage.getItem('auth_token');
+    const response = await fetch(`${API_CONFIG.baseURL}/reviews/recap`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
     return handleResponse(response);
   },
 

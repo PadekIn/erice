@@ -37,7 +37,6 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     { name: 'Users', href: '/admin/users', icon: Users },
     { name: 'Reports', href: '/admin/reports', icon: BarChart3 },
     { name: 'Reviews', href: '/admin/reviews', icon: Star },
-    { name: 'Testimonials', href: '/admin/testimonials', icon: MessageSquare },
     { name: 'Blog', href: '/admin/blog', icon: FileText },
     { name: 'Messages', href: '/admin/messages', icon: Mail },
   ];

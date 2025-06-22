@@ -403,8 +403,8 @@ const Order = () => {
                   rows={3}
                 />
               </div>
-
-              <div className="space-y-2">
+              {/* Voucher */}
+              {/* <div className="space-y-2">
                 <Label htmlFor="voucher">Kode Voucher</Label>
                 <div className="flex space-x-2">
                   <Input
@@ -438,7 +438,7 @@ const Order = () => {
                     Voucher "{appliedVoucher.voucherCode}" diterapkan! Diskon: {formatPrice(appliedVoucher.value)}
                   </p>
                 )}
-              </div>
+              </div> */}
             </CardContent>
           </Card>
 
@@ -460,12 +460,12 @@ const Order = () => {
                 <span>PPN (11%)</span>
                 <span className="font-medium">{formatPrice(vat)}</span>
               </div>
-              {appliedVoucher && (
+              {/* {appliedVoucher && (
                 <div className="flex justify-between text-green-600">
                   <span>Diskon Voucher</span>
                   <span className="font-medium">-{formatPrice(voucherDiscount)}</span>
                 </div>
-              )}
+              )} */}
               <hr />
               <div className="flex justify-between text-lg font-bold">
                 <span>Total</span>
