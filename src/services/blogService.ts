@@ -65,7 +65,7 @@ export const BlogService = {
   updateBlog: async (id: string, formData: FormData) => {
     const token = localStorage.getItem('auth_token');
     const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.blog}/${id}`, {
-      method: 'PUT',
+      method: 'PATCH',
       headers: {
         'Authorization': `Bearer ${token}`,
       },
