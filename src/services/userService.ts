@@ -19,7 +19,12 @@ const handleResponse = async (response: Response) => {
 
 export const UserService = {
   getUsersCount: async () => {
-    const response = await fetch(`${API_CONFIG.baseURL}/users/count`);
+    const token = localStorage.getItem('auth_token');
+    const response = await fetch(`${API_CONFIG.baseURL}/users/count`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
     return handleResponse(response);
   },
 };

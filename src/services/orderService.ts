@@ -67,12 +67,22 @@ export const OrderService = {
   },
 
   getOrdersCount: async () => {
-    const response = await fetch(`${API_CONFIG.baseURL}/orders/count`);
+    const token = localStorage.getItem('auth_token');
+    const response = await fetch(`${API_CONFIG.baseURL}/orders/count`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
     return handleResponse(response);
   },
 
   getRecentOrders: async () => {
-    const response = await fetch(`${API_CONFIG.baseURL}/orders/recent`);
+    const token = localStorage.getItem('auth_token');
+    const response = await fetch(`${API_CONFIG.baseURL}/orders/recent?limit=5`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
     return handleResponse(response);
   },
 

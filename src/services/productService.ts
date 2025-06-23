@@ -78,7 +78,12 @@ export const ProductService = {
   },
 
   getProductsCount: async () => {
-    const response = await fetch(`${API_CONFIG.baseURL}/products/count`);
+    const token = localStorage.getItem('auth_token');
+    const response = await fetch(`${API_CONFIG.baseURL}/products/count`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
     return handleResponse(response);
   },
 

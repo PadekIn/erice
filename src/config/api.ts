@@ -7,7 +7,7 @@ export const API_CONFIG = {
     orders: '/orders',
     testimonials: '/testimonials',
     blog: '/blogs',
-    contact: '/contact',
+    contact: '/contacts',
     categories: '/categories',
     carts: '/carts',
   }

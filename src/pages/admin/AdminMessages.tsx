@@ -18,13 +18,15 @@ import {
   DialogTitle,
   DialogTrigger
 } from '@/components/ui/dialog';
-import { Search, Eye, Trash2, Mail, MailOpen } from 'lucide-react';
+import { Search, Eye, Mail } from 'lucide-react';
 import { useContactMessages } from '@/hooks/useContact';
 import { ContactMessage } from '@/services/contactService';
+import MessageReplyForm from '@/components/admin/MessageReplyForm';
 
 const AdminMessages = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const { data: messagesResponse, isLoading, error } = useContactMessages();
   const messages = messagesResponse?.data || [];
@@ -37,49 +39,35 @@ const AdminMessages = () => {
     return matchesSearch;
   });
 
-  const handleDelete = (messageId: string) => {
-    if (confirm('Are you sure you want to delete this message?')) {
-      console.log('Delete message:', messageId);
-      // Implement delete logic here when endpoint is available
-    }
+  const handleReplySuccess = () => {
+    setIsDialogOpen(false);
+    setSelectedMessage(null);
   };
 
   const MessageDetails = ({ message }: { message: ContactMessage }) => (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4">
         <div>
           <h3 className="font-medium text-forest-800 mb-2">From</h3>
-          <p className="text-sm">{message.fullname}</p>
-          <p className="text-sm text-gray-500">{message.email}</p>
+          <p className="text-sm">{message.fullname} <span className="text-sm text-gray-500">{"<" + message.email + ">"}</span></p>
           {message.phone && <p className="text-sm text-gray-500">{message.phone}</p>}
         </div>
         <div>
-          <h3 className="font-medium text-forest-800 mb-2">Message ID</h3>
-          <p className="text-sm">{message.id}</p>
+          <h3 className="font-medium text-forest-800 mb-2">Subject</h3>
+          <p className="text-sm">{message.subject}</p>
         </div>
-      </div>
-
-      <div>
-        <h3 className="font-medium text-forest-800 mb-2">Subject</h3>
-        <p className="text-sm font-medium">{message.subject}</p>
       </div>
 
       <div>
         <h3 className="font-medium text-forest-800 mb-2">Message</h3>
-        <div className="text-sm text-gray-600 bg-rice-50 p-4 rounded-lg border">
+        <div className="text-sm text-gray-600  p-4 rounded-lg border">
           {message.message}
         </div>
       </div>
 
-      <div className="flex justify-end space-x-2">
-        <Button
-          variant="outline"
-          onClick={() => window.open(`mailto:${message.email}?subject=Re: ${message.subject}`)}
-          className="text-forest-600 border-forest-600 hover:bg-forest-50"
-        >
-          <Mail className="h-4 w-4 mr-2" />
-          Reply
-        </Button>
+      <div>
+        <h3 className="font-medium text-forest-800 mb-2">Reply</h3>
+        <MessageReplyForm message={message} onReplySuccess={handleReplySuccess} />
       </div>
     </div>
   );
@@ -147,7 +135,7 @@ const AdminMessages = () => {
                 <TableHead>From</TableHead>
                 <TableHead>Subject</TableHead>
                 <TableHead>Phone</TableHead>
-                <TableHead>Reply</TableHead>
+                <TableHead>Reply Status</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -164,41 +152,45 @@ const AdminMessages = () => {
                     <p className="text-sm">{message.subject}</p>
                   </TableCell>
                   <TableCell className="text-sm">{message.phone || '-'}</TableCell>
-                  <TableCell className="text-sm">{message.isReplied ? '✅' : "❌"}</TableCell>
+                  <TableCell className="text-sm">
+                    {message.isReplied ? (
+                      <span className="text-green-600 font-medium">✅</span>
+                    ) : (
+                      <span className="text-orange-600 font-medium">❌</span>
+                    )}
+                  </TableCell>
                   <TableCell>
                     <div className="flex space-x-2">
-                      <Dialog>
+                      <Dialog open={isDialogOpen && selectedMessage?.id === message.id} onOpenChange={(open) => {
+                        setIsDialogOpen(open);
+                        if (!open) setSelectedMessage(null);
+                      }}>
                         <DialogTrigger asChild>
                           <Button
                             variant="outline"
                             size="icon"
-                            onClick={() => setSelectedMessage(message)}
+                            onClick={() => {
+                              setSelectedMessage(message);
+                              setIsDialogOpen(true);
+                            }}
                           >
                             <Eye className="h-4 w-4" />
                           </Button>
                         </DialogTrigger>
-                        <DialogContent className="max-w-2xl">
+                        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
                           <DialogHeader>
                             <DialogTitle>Message Details</DialogTitle>
                           </DialogHeader>
-                          <MessageDetails message={message} />
+                          {selectedMessage && <MessageDetails message={selectedMessage} />}
                         </DialogContent>
                       </Dialog>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => handleDelete(message.id)}
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
                     </div>
                   </TableCell>
                 </TableRow>
               ))}
               {filteredMessages.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center py-8 text-gray-500">
+                  <TableCell colSpan={5} className="text-center py-8 text-gray-500">
                     {searchTerm ? 'No messages found matching your search.' : 'No messages yet.'}
                   </TableCell>
                 </TableRow>

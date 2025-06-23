@@ -1,3 +1,4 @@
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { API_CONFIG } from '@/config/api';
@@ -33,7 +34,18 @@ export interface ContactMessage {
   subject: string;
   message: string;
   isReplied?: boolean;
+  replyMessage?: string;
   createdAt: string;
+}
+
+export interface ReplyContactRequest {
+  replyMessage: string;
+}
+
+export interface ReplyContactResponse {
+  status: boolean;
+  message: string;
+  data: null;
 }
 
 export const ContactService = {
@@ -65,6 +77,19 @@ export const ContactService = {
       headers: {
         'Authorization': `Bearer ${token}`,
       },
+    });
+    return handleResponse(response);
+  },
+
+  replyToMessage: async (messageId: string, replyData: ReplyContactRequest): Promise<ReplyContactResponse> => {
+    const token = localStorage.getItem('auth_token');
+    const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.contact}/reply/${messageId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(replyData),
     });
     return handleResponse(response);
   },

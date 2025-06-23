@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Package, ShoppingCart, Users, TrendingUp } from 'lucide-react';
@@ -43,7 +44,7 @@ const AdminDashboard = () => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      
+
       // Fetch all dashboard data concurrently
       const [
         productsResponse,
@@ -124,28 +125,24 @@ const AdminDashboard = () => {
     {
       title: 'Total Products',
       value: loading ? 'Loading...' : stats.totalProducts.toString(),
-      change: '+12%',
       icon: Package,
       color: 'text-forest-600'
     },
     {
       title: 'Total Orders',
       value: loading ? 'Loading...' : stats.totalOrders.toLocaleString('id-ID'),
-      change: '+23%',
       icon: ShoppingCart,
       color: 'text-earth-600'
     },
     {
       title: 'Total Users',
       value: loading ? 'Loading...' : stats.totalUsers.toLocaleString('id-ID'),
-      change: '+8%',
       icon: Users,
       color: 'text-rice-600'
     },
     {
       title: 'Monthly Revenue',
       value: loading ? 'Loading...' : formatPrice(stats.monthlyRevenue),
-      change: '+18%',
       icon: TrendingUp,
       color: 'text-forest-600'
     }
@@ -167,7 +164,6 @@ const AdminDashboard = () => {
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
                   <p className="text-2xl font-bold text-forest-800">{stat.value}</p>
-                  <p className="text-sm text-green-600">{stat.change} from last month</p>
                 </div>
                 <div className={`p-3 rounded-full bg-forest-100 ${stat.color}`}>
                   <stat.icon className="h-6 w-6" />
@@ -195,14 +191,14 @@ const AdminDashboard = () => {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" />
                   <YAxis />
-                  <Tooltip 
+                  <Tooltip
                     formatter={(value) => [formatPrice(Number(value)), 'Sales']}
                   />
                   <Legend />
-                  <Line 
-                    type="monotone" 
-                    dataKey="sales" 
-                    stroke="#339933" 
+                  <Line
+                    type="monotone"
+                    dataKey="sales"
+                    stroke="#339933"
                     strokeWidth={2}
                     dot={{ fill: '#339933' }}
                   />

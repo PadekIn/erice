@@ -19,12 +19,22 @@ const handleResponse = async (response: Response) => {
 
 export const ReportService = {
   getMonthlySales: async () => {
-    const response = await fetch(`${API_CONFIG.baseURL}/reports/sales/monthly`);
+    const token = localStorage.getItem('auth_token');
+    const response = await fetch(`${API_CONFIG.baseURL}/reports/sales/monthly`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
     return handleResponse(response);
   },
 
   getSalesChart: async () => {
-    const response = await fetch(`${API_CONFIG.baseURL}/reports/sales/grafik`);
+    const token = localStorage.getItem('auth_token');
+    const response = await fetch(`${API_CONFIG.baseURL}/reports/sales/grafik`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
     return handleResponse(response);
   },
 
