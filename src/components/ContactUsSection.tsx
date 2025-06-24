@@ -26,8 +26,8 @@ const ContactUsSection = () => {
               </div>
               <h3 className="font-semibold text-forest-800">Alamat</h3>
               <p className="text-sm text-gray-600">
-                Jl. Raya Indragiri Hilir<br />
-                Tembilahan, Riau 29212<br />
+                Jl. Ahmad Yani, Tembilahan<br />
+                Indragiri Hilir, Riau 29212<br />
                 Indonesia
               </p>
             </CardContent>

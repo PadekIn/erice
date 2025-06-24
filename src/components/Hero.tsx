@@ -52,19 +52,19 @@ const Hero = () => {
                   <div className="w-5 h-5 rounded bg-forest-600 flex items-center justify-center">
                     <span className="text-white text-sm">✓</span>
                   </div>
-                  <span className="text-forest-800">Beras lokal berkualitas</span>
+                  <span className="text-forest-800">Beras Lokal Berkualitas</span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <div className="w-5 h-5 rounded bg-forest-600 flex items-center justify-center">
                     <span className="text-white text-sm">✓</span>
                   </div>
-                  <span className="text-forest-800">Dikelola koperasi Karim</span>
+                  <span className="text-forest-800">Dikelola Oleh Koperasi KODIM 0314 </span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <div className="w-5 h-5 rounded bg-forest-600 flex items-center justify-center">
                     <span className="text-white text-sm">✓</span>
                   </div>
-                  <span className="text-forest-800">Dukungan program ketahanan pangan</span>
+                  <span className="text-forest-800">Dukungan Program Ketahanan Pangan</span>
                 </div>
               </div>
 
@@ -82,7 +82,7 @@ const Hero = () => {
                 </Link>
               </div>
             </div>
-
+    
             {/* Right Content - Product Image */}
             <div className="relative flex justify-center items-center md:pt-20 md:pl-20">
               {/* Circular Background */}
