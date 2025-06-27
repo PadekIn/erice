@@ -63,6 +63,10 @@ export const ApiService = {
     return OrderService.getOrders(params);
   },
 
+  getMyOrders: async (params?: string) => {
+    return OrderService.getMyOrders(params);
+  },
+
   getOrderDetail: async (orderId: string) => {
     return OrderService.getOrderDetail(orderId);
   },

@@ -25,6 +25,16 @@ export const useOrders = (status?: string) => {
   });
 };
 
+export const useOrdersMe = (status?: string) => {
+  return useQuery({
+    queryKey: ['orders', status],
+    queryFn: () => {
+      const params = status ? `?status=${status}` : '';
+      return ApiService.getMyOrders(params);
+    },
+  });
+};
+
 export const useOrderDetail = (orderId: string) => {
   return useQuery({
     queryKey: ['order', orderId],

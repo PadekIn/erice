@@ -18,7 +18,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Package, Calendar, CreditCard, Truck, CheckCircle, Clock, RotateCcw, X, Eye } from 'lucide-react';
-import { useOrders } from '@/hooks/useApi';
+import { useOrdersMe } from '@/hooks/useApi';
 import OrderDetailModal from '@/components/order/OrderDetailModal';
 import SnapPaymentModal from '@/components/order/SnapPaymentModal';
 import ReviewModal from '@/components/order/ReviewModal';
@@ -36,7 +36,7 @@ const Orders = () => {
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [reviewMode, setReviewMode] = useState<'create' | 'view'>('create');
 
-  const { data: ordersResponse, isLoading, error, refetch } = useOrders(activeTab === 'all' ? undefined : activeTab);
+  const { data: ordersResponse, isLoading, error, refetch } = useOrdersMe(activeTab === 'all' ? undefined : activeTab);
   const orders = ordersResponse?.data || [];
 
   // Check if user is authenticated

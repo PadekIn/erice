@@ -34,6 +34,17 @@ export interface CreateOrderRequest {
 export const OrderService = {
   getOrders: async (params?: string) => {
     const token = localStorage.getItem('auth_token');
+    const url = `${API_CONFIG.baseURL}${API_CONFIG.endpoints.orders}${params || ''}`;
+    const response = await fetch(url, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    return handleResponse(response);
+  },
+
+  getMyOrders: async (params?: string) => {
+    const token = localStorage.getItem('auth_token');
     const url = `${API_CONFIG.baseURL}${API_CONFIG.endpoints.orders}/me${params || ''}`;
     const response = await fetch(url, {
       headers: {
