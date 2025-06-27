@@ -28,27 +28,6 @@ const About = () => {
     }
   ];
 
-  const team = [
-    {
-      name: 'Bapak Ahmad Suryadi',
-      role: 'Founder & CEO',
-      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
-      description: 'Petani generasi ketiga dengan visi memajukan pertanian Indragiri Hilir.'
-    },
-    {
-      name: 'Ibu Siti Aminah',
-      role: 'Head of Quality Control',
-      image: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
-      description: 'Ahli dalam kontrol kualitas dengan pengalaman 15 tahun di industri pangan.'
-    },
-    {
-      name: 'Bapak Rahman Hidayat',
-      role: 'Head of Operations',
-      image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80',
-      description: 'Mengelola operasional harian dan koordinasi dengan petani mitra.'
-    }
-  ];
-
   return (
     <>
       {/* Hero Section */}
@@ -133,48 +112,6 @@ const About = () => {
         </div>
       </section>
 
-      {/* Team Section */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="text-center space-y-4 mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-forest-800">
-              Tim Kami
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Dibalik setiap butir beras berkualitas, ada tim berpengalaman 
-              yang berdedikasi untuk memberikan yang terbaik.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {team.map((member, index) => (
-              <Card key={index} className="border-forest-200 hover:shadow-lg transition-shadow">
-                <CardContent className="p-6 text-center space-y-4">
-                  <div className="w-32 h-32 mx-auto rounded-full overflow-hidden">
-                    <img
-                      src={member.image}
-                      alt={member.name}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold text-forest-800">
-                      {member.name}
-                    </h3>
-                    <p className="text-forest-600 font-medium mb-2">
-                      {member.role}
-                    </p>
-                    <p className="text-gray-600 text-sm">
-                      {member.description}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* CTA Section */}
       <section className="py-16 bg-gradient-to-r from-forest-600 to-forest-700 text-white">
         <div className="container mx-auto px-4 text-center space-y-8">
@@ -192,7 +129,7 @@ const About = () => {
               </Button>
             </Link>
             <Link to="/contact">
-              <Button variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-forest-700 px-8 py-6 text-lg font-semibold">
+              <Button variant="outline" size="lg" className="bg-white text-forest-700 hover:bg-gray-100 px-8 py-6 text-lg font-semibold">
                 Hubungi Kami
               </Button>
             </Link>

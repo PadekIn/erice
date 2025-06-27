@@ -1,12 +1,12 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogTrigger 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
 } from '@/components/ui/dialog';
 import { Plus } from 'lucide-react';
 import ProductCreateForm from '@/components/admin/ProductCreateForm';
@@ -19,7 +19,7 @@ import { Product } from '@/services/productService';
 
 const AdminProducts = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState('All');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -33,7 +33,7 @@ const AdminProducts = () => {
 
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || product.CategoryProduct.id === selectedCategory;
+    const matchesCategory = selectedCategory === 'All' || product.CategoryProduct.id === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
@@ -43,9 +43,7 @@ const AdminProducts = () => {
   };
 
   const handleDelete = (productId: string) => {
-    if (confirm('Are you sure you want to delete this product?')) {
-      deleteProductMutation.mutate(productId);
-    }
+    deleteProductMutation.mutate(productId);
   };
 
   const handleCloseCreateDialog = () => {
@@ -76,8 +74,8 @@ const AdminProducts = () => {
             <DialogHeader>
               <DialogTitle>Add New Product</DialogTitle>
             </DialogHeader>
-            <ProductCreateForm 
-              onClose={handleCloseCreateDialog} 
+            <ProductCreateForm
+              onClose={handleCloseCreateDialog}
               categories={categories}
             />
           </DialogContent>
@@ -90,9 +88,9 @@ const AdminProducts = () => {
               <DialogTitle>Edit Product</DialogTitle>
             </DialogHeader>
             {editingProduct && (
-              <ProductEditForm 
+              <ProductEditForm
                 product={editingProduct}
-                onClose={handleCloseEditDialog} 
+                onClose={handleCloseEditDialog}
                 categories={categories}
               />
             )}

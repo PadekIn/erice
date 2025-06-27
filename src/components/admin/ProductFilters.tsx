@@ -2,6 +2,7 @@
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Search } from 'lucide-react';
+import { useCategories } from '@/hooks/useCategories';
 
 interface ProductFiltersProps {
   searchTerm: string;
@@ -10,18 +11,14 @@ interface ProductFiltersProps {
   setSelectedCategory: (category: string) => void;
 }
 
-const ProductFilters = ({ 
-  searchTerm, 
-  setSearchTerm, 
-  selectedCategory, 
-  setSelectedCategory 
+const ProductFilters = ({
+  searchTerm,
+  setSearchTerm,
+  selectedCategory,
+  setSelectedCategory
 }: ProductFiltersProps) => {
-  const categories = [
-    { value: 'all', label: 'All Categories' },
-    { value: 'premium', label: 'Premium' },
-    { value: 'medium', label: 'Medium' },
-    { value: 'organic', label: 'Organic' },
-  ];
+  const { data: categoriesData, isLoading: categoriesLoading } = useCategories();
+  const categories = categoriesData?.data || [];
 
   return (
     <Card>
@@ -39,14 +36,17 @@ const ProductFilters = ({
             </div>
           </div>
           <div className="w-full md:w-48">
-            <select 
+            <select
               className="w-full p-2 border rounded-md"
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
             >
+              <option>
+                Filter Category
+              </option>
               {categories.map((category) => (
-                <option key={category.value} value={category.value}>
-                  {category.label}
+                <option key={category.id} value={category.id}>
+                  {category.name}
                 </option>
               ))}
             </select>

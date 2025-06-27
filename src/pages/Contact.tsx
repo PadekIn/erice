@@ -60,9 +60,9 @@ const Contact = () => {
       icon: MapPin,
       title: 'Alamat',
       details: [
-        'Jl. Raya Tembilahan No. 123',
+        'Jl. Ahmad Yani',
         'Tembilahan, Indragiri Hilir',
-        'Riau 29213, Indonesia'
+        'Riau 29212, Indonesia'
       ]
     },
     {
