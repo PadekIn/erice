@@ -7,7 +7,7 @@ COPY . .
 
 # Install dependencies
 RUN bun install --frozen-lockfile
-RUN bun run build
+# RUN bun run build
 
 EXPOSE 4444
 
